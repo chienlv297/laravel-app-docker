@@ -1,0 +1,60 @@
+#version tùy theo lựa chọn của mình
+version: '2'
+services:
+  # The Application
+  app:
+    container_name: laravel_app
+    build:
+      #đường dẫn vào bên trong thư mục sourcecode
+      args:
+        user: chienlv
+        uid: 1000
+      context: ./
+      #đường dẫn đến dockerfile
+      dockerfile: development/app.dockerfile
+    #định nghĩa nơi lưu trữ chia sẽ giữa ứng dụng và docker container đang chạy
+    volumes:
+      - ./:/var/www/
+    #nơi định nghĩa file .env của dự án
+    env_file: '.env'
+    #các biến môi trường
+    environment:
+      - "DB_HOST=database"
+      - "REDIS_HOST=cache"
+    working_dir: /var/www/
+  # The Web Server : nginx
+  web:
+    container_name: nginx_server
+    build:
+      context: ./
+      dockerfile: development/web.dockerfile
+    volumes:
+      - ./:/var/www/    #Bên trái port của máy chủ, bên phải là port của docker container  
+    ports:
+      - 8080:80
+
+  # The Database mysql
+  mysql:
+    container_name: mysql_database
+    image: mysql:5.7
+    # volumes:
+    # - dbdata:/var/lib/mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+  #phpmyadmin tool
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.0.1
+    container_name: phpmyadmin_container
+    restart: always
+    environment:
+      PMA_HOST: ${DB_HOST}
+      PMA_USER: ${DB_USERNAME}
+      PMA_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8081:80"
