@@ -1,5 +1,5 @@
 ###chienlv297
-Laravel app with docker : nginx, php-fpm, mysql, myphpadmin
+Laravel app with docker : nginx, php-fpm, mysql, myphpadmin, horizon 
 
 ###
 
